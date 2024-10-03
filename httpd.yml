@@ -1,0 +1,33 @@
+---
+- name: Install and configure Apache 2 on Ubuntu
+  hosts: all  # Replace with your host or group name
+  become: yes    # Use this to run tasks as a superuser
+  tasks:
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install Apache 2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Start Apache service
+      service:
+        name: apache2
+        state: started
+        enabled: yes  # Ensure Apache starts on boot
+
+    - name: Ensure Apache is running
+      wait_for:
+        port: 80
+        delay: 5
+        timeout: 30
+      register: wait_result
+
+    - name: Debug message if Apache is running
+      debug:
+        msg: "Apache is running on port 80."
+      when: wait_result is not failed
+
+
